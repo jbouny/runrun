@@ -1,0 +1,16 @@
+body {
+	background-color : #000;
+	margin : 0px;
+	padding : 0px;
+	color : #fff;
+	overflow: hidden;
+}
+
+#terrain {
+	position : absolute;
+	top : 10px;
+	left : 10px;
+	width : 100px;
+	height : 100px;
+	/*display : none;*/
+}
