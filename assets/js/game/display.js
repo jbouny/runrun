@@ -32,7 +32,7 @@ var DISPLAY =
 		this.ms_Canvas.html( this.ms_Renderer.domElement );
 		this.ms_Scene = new THREE.Scene();
 		
-		this.ms_Camera = new THREE.PerspectiveCamera( 55.0, Window.ms_Width / Window.ms_Height, 0.01, 10000 );
+		this.ms_Camera = new THREE.PerspectiveCamera( 55.0, Window.ms_Width / Window.ms_Height, 0.01, 20000 );
 		this.ms_Camera.position.set( 13, 1.5, 4 );
 		
 		// Initialize Orbit control		
@@ -41,26 +41,29 @@ var DISPLAY =
 	
 		// Add lights
 		this.ms_Renderer.shadowMapEnabled = true;
-		this.ms_Renderer.shadowMapSoft = true;
+		this.ms_Renderer.shadowMapType = THREE.PCFSoftShadowMap;
 		
-		this.ms_Light = new THREE.DirectionalLight( 0xffffff, 0.8 );
-		this.ms_Light.castShadow = false;
-		this.ms_Light.position.set( 200, 300, 200 );
-		/*this.ms_Light.shadowCameraNear = 410;
-		this.ms_Light.shadowCameraFar = 1000;
+		this.ms_Light = new THREE.DirectionalLight( 0xffddaa, 1 );
+		this.ms_Light.castShadow = true;
+		this.ms_Light.position.set( -1100, 800, -250 );
+		this.ms_Light.shadowCameraNear = 410;
+		this.ms_Light.shadowCameraFar = 1370;
 		this.ms_Light.shadowCameraLeft = -200;
 		this.ms_Light.shadowCameraRight = 200;
 		this.ms_Light.shadowCameraTop = 200;
 		this.ms_Light.shadowCameraBottom = -200;
 		this.ms_Light.shadowMapWidth = 512;
 		this.ms_Light.shadowMapHeight = 512;
-		this.ms_Light.shadowDarkness = 0.7;*/
+		this.ms_Light.shadowBias = -0.0018;
+		this.ms_Light.shadowDarkness = 0.7;
+		
+		console.log( this.ms_Light );
 		
 		this.ms_CloseLight = new THREE.DirectionalLight( 0xffffff, 0 );
 		this.ms_CloseLight.castShadow = true;
 		this.ms_CloseLight.onlyShadow = true;
 		this.ms_CloseLight.shadowCameraNear = 1;
-		this.ms_CloseLight.shadowCameraFar = 100;
+		this.ms_CloseLight.shadowCameraFar = 40;
 		this.ms_CloseLight.shadowCameraLeft = -20;
 		this.ms_CloseLight.shadowCameraRight = 20;
 		this.ms_CloseLight.shadowCameraTop = 20;
@@ -68,19 +71,22 @@ var DISPLAY =
 		this.ms_CloseLight.shadowMapWidth = 1024;
 		this.ms_CloseLight.shadowMapHeight = 1024;
 		this.ms_CloseLight.shadowDarkness = 0.7;
-		this.ms_CloseLight.position.set( 22, 10, -20 );
+		this.ms_CloseLight.shadowBias = -0.0004;
+		this.ms_CloseLight.position.set( -22, 20, -13 );
 		
 		this.ms_Scene.add( new THREE.AmbientLight( 0x404040 ) );
 		
 		// Add skybox
-		this.ms_Scene.add( new THREE.Mesh(
-			new THREE.SphereGeometry( 2000, 15, 15 ),
+		var aSkyDome = new THREE.Mesh(
+			new THREE.SphereGeometry( 10000, 15, 15 ),
 			new THREE.MeshBasicMaterial( {
 				map: THREE.ImageUtils.loadTexture( "assets/img/skydome.jpg" ),
 				color: 0xffffff,
 				side: THREE.DoubleSide
 			} )
-		) );
+		);
+		aSkyDome.rotation.y = Math.PI;
+		this.ms_Scene.add( aSkyDome );
 		
 		//this.ms_CloseLight.shadowCameraVisible = true;
 		//this.ms_Light.shadowCameraVisible = true;
@@ -99,6 +105,7 @@ var DISPLAY =
 		
 		this.ms_Scene.add( this.ms_Terrain );
 		this.ms_Terrain.receiveShadow = true;
+		this.ms_Terrain.castShadow = false;
 	},
 	
 	GetDepth: function( inX, inY )
@@ -117,11 +124,11 @@ var DISPLAY =
 				
 				mesh.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
 				mesh.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
-				mesh.rotation.set( 0, Math.random() * Math.PI * 2, 0);
+				mesh.rotation.set( 0, Math.random() * Math.PI * 2, 0 );
 				
 				mesh.position.y = DISPLAY.GetDepth( Math.round( GAME.ms_Parameters.widthSegments / 2 + x ), Math.round( GAME.ms_Parameters.heightSegments / 2 + z ) );
 				mesh.scale.set( 0.03, 0.03, 0.03 );
-				mesh.castShadow = false;
+				mesh.castShadow = true;
 				mesh.receiveShadow = false;
 				
 				DISPLAY.ms_Animals.add( mesh );
@@ -141,12 +148,9 @@ var DISPLAY =
 		this.ms_Renderer.render( this.ms_Scene, this.ms_Camera );
 	},
 	
-	Update: function()
+	Update: function( inUpdate )
 	{
-		MESHES.Update();
-		GAME.Update();
-		
-		//this.ms_Player.position.z -= 0.4;
+		MESHES.Update( inUpdate );
 		
 		this.ms_Controls.update();
 		this.Display();

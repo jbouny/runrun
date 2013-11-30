@@ -111,7 +111,7 @@ var PLAYER =
 		
 		// Add a cube in the player in order to see the physical box
 		/*this.ms_Mesh.add( new THREE.Mesh( 
-			new THREE.CubeGeometry( 0.05, CONV.SizeTo3D( this.ms_Size.y ), CONV.SizeTo3D( this.ms_Size.x ) ), 
+			new THREE.CubeGeometry( 0.05, CONV.SizeTo3D( this.ms_Size.y+0.02 ), CONV.SizeTo3D( this.ms_Size.x ) ), 
 			new THREE.MeshNormalMaterial() ) 
 		);*/
 		
@@ -122,19 +122,31 @@ var PLAYER =
 		DISPLAY.ms_Scene.add( this.ms_Group );
 		
 		// Shadows follow the player in order to optimize their computing
-		this.ms_GroupHeight.add( DISPLAY.ms_Light ) ;
-		this.ms_GroupHeight.add( DISPLAY.ms_Light.target );
+		this.ms_Group.add( DISPLAY.ms_Light ) ;
+		this.ms_Group.add( DISPLAY.ms_Light.target );
 		DISPLAY.ms_Light.target.position.set( - 0.8 * GAME.ms_Parameters.heightSegments, 0, - 0.3 * GAME.ms_Parameters.heightSegments );
 
 		// Idem for close light	
-		this.ms_GroupHeight.add( DISPLAY.ms_CloseLight ) ;
-		this.ms_GroupHeight.add( DISPLAY.ms_CloseLight.target );
-		DISPLAY.ms_CloseLight.target.position.set( 0, 0, -15 );
+		this.ms_Group.add( DISPLAY.ms_CloseLight ) ;
+		this.ms_Group.add( DISPLAY.ms_CloseLight.target );
+		DISPLAY.ms_CloseLight.target.position.set( 0, 0, -8 );
 		//DISPLAY.ms_Light.target.position.set( - 0.8 * GAME.ms_Parameters.heightSegments, 0, - 0.3 * GAME.ms_Parameters.heightSegments );
 	},
 
 	Update: function()
-	{
+	{		
+		// Apply constant velocity
+		var aVelocity = this.ms_B2DBody.GetLinearVelocity();
+		aVelocity.set_x( this.ms_Speed );
+		this.ms_B2DBody.SetLinearVelocity( aVelocity );
+		
+		// Disable the player rotation effect
+		this.ms_B2DBody.SetAngularVelocity( this.ms_B2DBody.GetAngularVelocity() * 0.7 );
+		
+		// Put slowly the up vector of the player to the top
+		var aAngle = this.ms_B2DBody.GetAngle();
+		this.ms_B2DBody.SetTransform( this.ms_B2DBody.GetPosition(), aAngle * 0.96 );
+		
 		var aData = {};
 		GAME.B2DReadObject( aData, this.ms_B2DBody );
 		CONV.To3DS( aData );
@@ -142,10 +154,6 @@ var PLAYER =
 		this.ms_GroupHeight.position.y = aData.y;
 		if( this.ms_Mesh != null )
 			this.ms_Mesh.rotation.x = aData.angle;
-			
-		var aVelocity = this.ms_B2DBody.GetLinearVelocity();
-		aVelocity.set_x( this.ms_Speed );
-		this.ms_B2DBody.SetLinearVelocity( aVelocity );
 	},
 	
 	Jump: function()
@@ -165,7 +173,7 @@ var GROUND =
         var aEdgeShape = new Box2D.b2EdgeShape();
 		var aGroundPoints = [];
 		
-		for( var i = 3; i < inParameters.heightSegments; i += 1 )
+		for( var i = 3; i < inParameters.heightSegments; i += 1.2 )
 		{
 			var x1 = i, x2 = i + 1, y = Math.random() * 0.5;
 			
@@ -198,12 +206,29 @@ var GROUND =
 	}
 }
 
+var TREES =
+{
+	ms_Shape: null,
+	
+	Initialize: function()
+	{
+		var aTreeGeo = new THREE.Geometry();
+	},
+	
+	Generate: function()
+	{
+		if( this.ms_Shape == null )
+			this.Initialize();
+	}
+};
+
 var GAME =
 {
 	ms_B2DWorld: null,
 	ms_B2DShape: null,
 	ms_Parameters: null,
 	ms_HeightMap: null,
+	ms_Clock: null,
 	
 	Initialize: function( inIdCanvas )
 	{
@@ -222,6 +247,7 @@ var GAME =
 			effect: [ DESTRUCTURE_EFFECT ],
 			canvas: this.ms_HeightMap
 		};
+		this.ms_Clock = new THREE.Clock();
 		
 		CONV.ms_WorldRatio = GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
 		CONV.ms_WorldOffsetZ = GAME.ms_Parameters.height * 0.5;
@@ -255,16 +281,20 @@ var GAME =
 	
 	Update: function()
 	{
+		var aDelta = this.ms_Clock.getDelta();
+		
 		this.ms_B2DWorld.Step(
-			1/60,
+			aDelta,
 			20,			// velocity iterations
 			20			// position iterations
 		);
-		PLAYER.Update();
+		PLAYER.Update( aDelta );
 		
 		var aSize = DISPLAY.ms_Animals.children.length * 0.8;
 		for( var i = 0; i < aSize; ++i )
 			DISPLAY.ms_Animals.children[i].lookAt( PLAYER.ms_Group.position );
+			
+		DISPLAY.Update( aDelta );
 	},
 	
 	Jump: function()

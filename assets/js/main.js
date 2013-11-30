@@ -1,7 +1,7 @@
 function MainLoop()
 {
 	requestAnimationFrame( MainLoop );
-	DISPLAY.Update();
+	GAME.Update();
 }
 
 $( function() {

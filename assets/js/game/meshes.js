@@ -9,12 +9,10 @@ var MESHES =
 	],
 	ms_MorphsGeometry: [],
 	ms_Morphs: [],
-	ms_Clock: null,
 	ms_Loader: null,
 	
 	Initialize: function()
 	{
-		this.ms_Clock = new THREE.Clock();
 		this.ms_Loader = new THREE.JSONLoader();
 	},
 	
@@ -69,13 +67,12 @@ var MESHES =
 		}
 	},
 	
-	Update: function()
+	Update: function( inDelta )
 	{
-		var delta = this.ms_Clock.getDelta();
 		for ( var i = 0; i < this.ms_Morphs.length; i++ ) 
 		{
 			morph = this.ms_Morphs[i];
-			morph.updateAnimation( 1000 * delta );
+			morph.updateAnimation( 1000 * inDelta );
 		}
 	}
 };
