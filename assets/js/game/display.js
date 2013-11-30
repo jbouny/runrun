@@ -39,14 +39,14 @@ var DISPLAY =
 		this.ms_Controls = new THREE.OrbitControls( this.ms_Camera, this.ms_Renderer.domElement );
 		this.ms_Controls.userPanSpeed = 0.15;
 	
-		// Add lights
+		// Add lights with shadows
 		this.ms_Renderer.shadowMapEnabled = true;
 		this.ms_Renderer.shadowMapType = THREE.PCFSoftShadowMap;
 		
 		this.ms_Light = new THREE.DirectionalLight( 0xffddaa, 1 );
 		this.ms_Light.castShadow = true;
 		this.ms_Light.position.set( -1100, 800, -250 );
-		this.ms_Light.shadowCameraNear = 410;
+		this.ms_Light.shadowCameraNear = 1150;
 		this.ms_Light.shadowCameraFar = 1370;
 		this.ms_Light.shadowCameraLeft = -200;
 		this.ms_Light.shadowCameraRight = 200;
@@ -56,8 +56,6 @@ var DISPLAY =
 		this.ms_Light.shadowMapHeight = 512;
 		this.ms_Light.shadowBias = -0.0018;
 		this.ms_Light.shadowDarkness = 0.7;
-		
-		console.log( this.ms_Light );
 		
 		this.ms_CloseLight = new THREE.DirectionalLight( 0xffffff, 0 );
 		this.ms_CloseLight.castShadow = true;
@@ -92,7 +90,7 @@ var DISPLAY =
 		//this.ms_Light.shadowCameraVisible = true;
 		
 		this.LoadTerrain();
-		this.GenerateAnimals();
+		this.GenerateAnimals();		
 	},
 	
 	LoadTerrain: function()
