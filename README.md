@@ -1,7 +1,7 @@
-runrun
+RunRun
 ======
 
-A simple try of a game in WebGL with Three.js
+A simple try of an entire procedural game in WebGL.
 
 ### Demo
 
