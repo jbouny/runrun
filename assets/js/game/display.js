@@ -37,7 +37,7 @@ var DISPLAY =
 		
 		// Initialize Orbit control		
 		this.ms_Controls = new THREE.OrbitControls( this.ms_Camera, this.ms_Renderer.domElement );
-		this.ms_Controls.userPanSpeed = 0.15;
+		this.ms_Controls.userPanSpeed = 0.5;
 	
 		// Add lights with shadows
 		this.ms_Renderer.shadowMapEnabled = true;
@@ -117,12 +117,12 @@ var DISPLAY =
 			for( var i = 0; i < 300; ++i )
 			{
 				var mesh = MESHES.AddMorph( inGeometry );
-				var x = ( 0.5 + Math.random() * 0.5 ) * GAME.ms_Parameters.widthSegments/2 - GAME.ms_Parameters.widthSegments/8;
-				var z = ( 0.005 + Math.random() * 0.99 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments/2;
+				var x = ( 0.1 + RAND_MT.Random() * 0.9 ) * GAME.ms_Parameters.widthSegments/2 - GAME.ms_Parameters.widthSegments/8;
+				var z = ( 0.005 + RAND_MT.Random() * 0.99 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments/2;
 				
 				mesh.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
 				mesh.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
-				mesh.rotation.set( 0, Math.random() * Math.PI * 2, 0 );
+				mesh.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
 				
 				mesh.position.y = DISPLAY.GetDepth( Math.round( GAME.ms_Parameters.widthSegments / 2 + x ), Math.round( GAME.ms_Parameters.heightSegments / 2 + z ) );
 				mesh.scale.set( 0.03, 0.03, 0.03 );

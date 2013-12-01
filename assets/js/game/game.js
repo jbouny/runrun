@@ -175,7 +175,7 @@ var GROUND =
 		
 		for( var i = 3; i < inParameters.heightSegments; i += 1.2 )
 		{
-			var x1 = i, x2 = i + 1, y = Math.random() * 0.5;
+			var x1 = i, x2 = i + 1, y = RAND_MT.Random() * 0.5;
 			
 			aEdgeShape.Set( new Box2D.b2Vec2( x1, 0 ), new Box2D.b2Vec2( x2, y ) );
 			GAME.ms_B2DWorld.CreateBody( new Box2D.b2BodyDef() ).CreateFixture( aEdgeShape, 0.0 );
@@ -224,7 +224,7 @@ var TREES =
 		
 		// Initialize the group of trees and material
 		this.ms_Trees = new THREE.Object3D();
-		this.ms_Material = new THREE.MeshPhongMaterial( { color: 0x006600, ambient: 0x006600 } );
+		this.ms_Material = new THREE.MeshPhongMaterial( { color: 0x006600, ambient: 0x006600, shading: THREE.FlatShading } );
 		
 		// Generate trees
 		this.GenerateTrees( 1000 );
@@ -243,12 +243,12 @@ var TREES =
 		
 		for( var i = 0; i < inNbTrees; ++i )
 		{			
-			var x = ( 0.15 + Math.random() * 0.75 ) * GAME.ms_Parameters.widthSegments - GAME.ms_Parameters.widthSegments / 2;
-			var z = ( 0.01 + Math.random() * 0.98 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments / 2;
+			var x = ( 0.2 + RAND_MT.Random() * 0.7 ) * GAME.ms_Parameters.widthSegments - GAME.ms_Parameters.widthSegments / 2;
+			var z = ( 0.01 + RAND_MT.Random() * 0.98 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments / 2;
 			
 			var aTree = new THREE.Mesh(  this.ms_Geometry, this.ms_Material );
 			
-			aTree.rotation.set( 0, Math.random() * Math.PI * 2, 0 );
+			aTree.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
 			
 			aTree.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
 			aTree.position.y = DISPLAY.GetDepth( Math.floor( GAME.ms_Parameters.widthSegments / 2 + x ), Math.floor( GAME.ms_Parameters.heightSegments / 2 + z ) );
@@ -276,12 +276,13 @@ var GAME =
 	{
 		this.ms_HeightMap = TERRAINGEN.CreateCanvas( 0, 0 );
 		this.ms_Parameters = {
+			alea: RAND_MT,
 			generator: PN_GENERATOR,
 			width: 500,
 			height: 2000,
 			widthSegments: 50,
 			heightSegments: 200,
-			depth: 150,
+			depth: 200,
 			param: 1,
 			filterparam: 1,
 			filter: [ GAMETERRAIN_FILTER ],
@@ -293,7 +294,7 @@ var GAME =
 		
 		CONV.ms_WorldRatio = GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
 		CONV.ms_WorldOffsetZ = GAME.ms_Parameters.height * 0.5;
-		CONV.ms_WorldOffsetY = GAME.ms_Parameters.depth * 0.0948;
+		CONV.ms_WorldOffsetY = GAME.ms_Parameters.depth * 0.123;
 		CONV.ms_WorldOffsetX = GAME.ms_Parameters.width * 0.42;
 	
 		MESHES.Initialize();
