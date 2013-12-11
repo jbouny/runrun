@@ -173,6 +173,7 @@ var GROUND =
         var aEdgeShape = new Box2D.b2EdgeShape();
 		var aGroundPoints = [];
 		
+		aGroundPoints.push( CONV.ToVector2D( { x: 3, y: -0.1 } ) );
 		for( var i = 3; i < inParameters.heightSegments; i += 1.2 )
 		{
 			var x1 = i, x2 = i + 1, y = RAND_MT.Random() * 0.5;
@@ -183,7 +184,7 @@ var GROUND =
 			aGroundPoints.push( CONV.ToVector2D( { x: x1, y: 0 } ) );
 			aGroundPoints.push( CONV.ToVector2D( { x: x2, y: y } ) );
 		}
-		aGroundPoints.push( CONV.ToVector2D( { x: inParameters.heightSegments, y: 0 } ) );
+		aGroundPoints.push( CONV.ToVector2D( { x: inParameters.heightSegments, y: -0.1 } ) );
 		var aGroundShape = new THREE.Shape( aGroundPoints );
 		
 		var aExtrusionSettings = {
