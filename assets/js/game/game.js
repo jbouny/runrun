@@ -245,16 +245,20 @@ var TREES =
 		{			
 			var x = ( 0.2 + RAND_MT.Random() * 0.7 ) * GAME.ms_Parameters.widthSegments - GAME.ms_Parameters.widthSegments / 2;
 			var z = ( 0.01 + RAND_MT.Random() * 0.98 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments / 2;
+			var y = DISPLAY.GetDepth( Math.floor( GAME.ms_Parameters.widthSegments / 2 + x ), Math.floor( GAME.ms_Parameters.heightSegments / 2 + z ) );
 			
-			var aTree = new THREE.Mesh(  this.ms_Geometry, this.ms_Material );
-			
-			aTree.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
-			
-			aTree.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
-			aTree.position.y = DISPLAY.GetDepth( Math.floor( GAME.ms_Parameters.widthSegments / 2 + x ), Math.floor( GAME.ms_Parameters.heightSegments / 2 + z ) );
-			aTree.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
-			
-			THREE.GeometryUtils.merge( aTreeGeometry, aTree );
+			if( y > 15.0 )
+			{
+				var aTree = new THREE.Mesh(  this.ms_Geometry, this.ms_Material );
+				
+				aTree.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
+				
+				aTree.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
+				aTree.position.y = y;
+				aTree.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
+				
+				THREE.GeometryUtils.merge( aTreeGeometry, aTree );
+			}
 		}
 		
 		var aFinalTrees = new THREE.Mesh( aTreeGeometry, this.ms_Material );
@@ -294,7 +298,7 @@ var GAME =
 		
 		CONV.ms_WorldRatio = GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
 		CONV.ms_WorldOffsetZ = GAME.ms_Parameters.height * 0.5;
-		CONV.ms_WorldOffsetY = GAME.ms_Parameters.depth * 0.123;
+		CONV.ms_WorldOffsetY = GAME.ms_Parameters.depth * 0.10;
 		CONV.ms_WorldOffsetX = GAME.ms_Parameters.width * 0.42;
 	
 		MESHES.Initialize();

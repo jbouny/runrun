@@ -9,6 +9,7 @@ var DISPLAY =
 	ms_Light: null,
 	ms_CloseLight: null,
 	ms_Animals: null,
+	ms_Water: null,	
 	
 	ms_Player: null,
 	
@@ -23,7 +24,7 @@ var DISPLAY =
 	} )(),
 	
 	Initialize: function( inIdCanvas )
-	{		
+	{
 		this.ms_Clock = new THREE.Clock();
 		this.ms_Canvas = $( '#'+inIdCanvas );
 		
@@ -34,10 +35,9 @@ var DISPLAY =
 		
 		this.ms_Camera = new THREE.PerspectiveCamera( 55.0, Window.ms_Width / Window.ms_Height, 0.01, 20000 );
 		this.ms_Camera.position.set( 13, 1.5, 4 );
-		
 		// Initialize Orbit control		
 		this.ms_Controls = new THREE.OrbitControls( this.ms_Camera, this.ms_Renderer.domElement );
-		this.ms_Controls.userPanSpeed = 0.5;
+		this.ms_Controls.userPanSpeed = 2.5;
 	
 		// Add lights with shadows
 		this.ms_Renderer.shadowMapEnabled = true;
@@ -86,6 +86,29 @@ var DISPLAY =
 		aSkyDome.rotation.y = Math.PI;
 		this.ms_Scene.add( aSkyDome );
 		
+		// Create the water effect
+		var waterNormals = new THREE.ImageUtils.loadTexture( 'assets/img/waternormals.jpg' );
+		waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping; 
+		this.ms_Light.position.set( -1100, 800, -250 );
+		this.ms_Water = new THREE.Water( this.ms_Renderer, this.ms_Camera, this.ms_Scene, {
+			textureWidth: 512, 
+			textureHeight: 512,
+			waterNormals: waterNormals,
+			alpha: 	0.5,
+			sunDirection: ( new THREE.Vector3( -1100, 800, 0 ) ).normalize(),
+			sunColor: 0xffffff,
+			waterColor: 0x001e0f,
+			distortionScale: 15.0,
+		} );
+		var aMeshMirror = new THREE.Mesh(
+			new THREE.PlaneGeometry( GAME.ms_Parameters.width * 0.85, GAME.ms_Parameters.height, 10, 10 ), 
+			this.ms_Water.material
+		);
+		aMeshMirror.add( this.ms_Water );
+		aMeshMirror.position.y = 15;
+		aMeshMirror.rotation.x = - Math.PI * 0.5;
+		this.ms_Scene.add( aMeshMirror );
+		
 		//this.ms_CloseLight.shadowCameraVisible = true;
 		//this.ms_Light.shadowCameraVisible = true;
 		
@@ -95,9 +118,8 @@ var DISPLAY =
 	
 	LoadTerrain: function()
 	{
-		//this.ms_Camera.position.set( this.ms_Parameters.width * 0.5, this.ms_Parameters.width/15, this.ms_Parameters.height * 0.5 );
 		var terrainGeo = TERRAINGEN.Get( GAME.ms_Parameters );
-		var terrainMaterial = new THREE.MeshPhongMaterial( { vertexColors: THREE.VertexColors, shading: THREE.FlatShading, specular: 0xffffff } );
+		var terrainMaterial = new THREE.MeshPhongMaterial( { vertexColors: THREE.VertexColors, shading: THREE.FlatShading, specular: 0xffffff, side: THREE.DoubleSide } );
 		
 		this.ms_Terrain = new THREE.Mesh( terrainGeo, terrainMaterial );
 		
@@ -116,20 +138,24 @@ var DISPLAY =
 		MESHES.Load( inType, function( inGeometry ) {
 			for( var i = 0; i < 300; ++i )
 			{
-				var mesh = MESHES.AddMorph( inGeometry );
 				var x = ( 0.1 + RAND_MT.Random() * 0.9 ) * GAME.ms_Parameters.widthSegments/2 - GAME.ms_Parameters.widthSegments/8;
 				var z = ( 0.005 + RAND_MT.Random() * 0.99 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments/2;
+				var y = DISPLAY.GetDepth( Math.round( GAME.ms_Parameters.widthSegments / 2 + x ), Math.round( GAME.ms_Parameters.heightSegments / 2 + z ) );
 				
-				mesh.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
-				mesh.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
-				mesh.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
-				
-				mesh.position.y = DISPLAY.GetDepth( Math.round( GAME.ms_Parameters.widthSegments / 2 + x ), Math.round( GAME.ms_Parameters.heightSegments / 2 + z ) );
-				mesh.scale.set( 0.03, 0.03, 0.03 );
-				mesh.castShadow = true;
-				mesh.receiveShadow = false;
-				
-				DISPLAY.ms_Animals.add( mesh );
+				if( y > 15.0 )
+				{
+					var mesh = MESHES.AddMorph( inGeometry );
+					mesh.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
+					mesh.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
+					mesh.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
+					
+					mesh.position.y = y;
+					mesh.scale.set( 0.03, 0.03, 0.03 );
+					mesh.castShadow = true;
+					mesh.receiveShadow = false;
+					
+					DISPLAY.ms_Animals.add( mesh );
+				}
 			}
 		} );
 	},
@@ -143,11 +169,14 @@ var DISPLAY =
 	
 	Display: function()
 	{
+		this.ms_Water.render();
 		this.ms_Renderer.render( this.ms_Scene, this.ms_Camera );
 	},
 	
 	Update: function( inUpdate )
 	{
+		this.ms_Water.material.uniforms.time.value += 1.0 / 60.0;
+		
 		MESHES.Update( inUpdate );
 		
 		this.ms_Controls.update();
