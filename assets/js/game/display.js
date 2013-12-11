@@ -38,6 +38,8 @@ var DISPLAY =
 		// Initialize Orbit control		
 		this.ms_Controls = new THREE.OrbitControls( this.ms_Camera, this.ms_Renderer.domElement );
 		this.ms_Controls.userPanSpeed = 2.5;
+		this.ms_Controls.maxPolarAngle = Math.PI * 0.51;
+		this.ms_Controls.maxDistance = 100.0;
 	
 		// Add lights with shadows
 		this.ms_Renderer.shadowMapEnabled = true;
