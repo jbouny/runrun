@@ -68,8 +68,8 @@ var DISPLAY =
 		this.ms_CloseLight.shadowCameraRight = 20;
 		this.ms_CloseLight.shadowCameraTop = 20;
 		this.ms_CloseLight.shadowCameraBottom = -20;
-		this.ms_CloseLight.shadowMapWidth = 1024;
-		this.ms_CloseLight.shadowMapHeight = 1024;
+		this.ms_CloseLight.shadowMapWidth = 512;
+		this.ms_CloseLight.shadowMapHeight = 512;
 		this.ms_CloseLight.shadowDarkness = 0.7;
 		this.ms_CloseLight.shadowBias = -0.0004;
 		this.ms_CloseLight.position.set( -22, 20, -13 );
@@ -93,8 +93,8 @@ var DISPLAY =
 		waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping; 
 		this.ms_Light.position.set( -1100, 800, -250 );
 		this.ms_Water = new THREE.Water( this.ms_Renderer, this.ms_Camera, this.ms_Scene, {
-			textureWidth: 512, 
-			textureHeight: 512,
+			textureWidth: 256, 
+			textureHeight: 256,
 			waterNormals: waterNormals,
 			alpha: 	0.5,
 			sunDirection: ( new THREE.Vector3( -1100, 800, 0 ) ).normalize(),
@@ -138,7 +138,7 @@ var DISPLAY =
 	LoadAnimals: function( inType )
 	{
 		MESHES.Load( inType, function( inGeometry ) {
-			for( var i = 0; i < 300; ++i )
+			for( var i = 0; i < 400; ++i )
 			{
 				var x = ( 0.1 + RAND_MT.Random() * 0.9 ) * GAME.ms_Parameters.widthSegments/2 - GAME.ms_Parameters.widthSegments/8;
 				var z = ( 0.005 + RAND_MT.Random() * 0.99 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments/2;

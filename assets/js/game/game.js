@@ -258,6 +258,9 @@ var TREES =
 				aTree.position.y = y;
 				aTree.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
 				
+				var aScale = RAND_MT.Random() * 0.5 + 0.75;
+				aTree.scale.set( aScale, aScale, aScale );
+				
 				THREE.GeometryUtils.merge( aTreeGeometry, aTree );
 			}
 		}
