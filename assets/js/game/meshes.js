@@ -7,7 +7,7 @@ var MESHES =
 		"assets/libs/obj/animals/fox.js",
 		"assets/libs/obj/animals/parrot.js",
 	],
-	ms_MorphsGeometry: [],
+	//ms_MorphsGeometry: [],
 	ms_Morphs: [],
 	ms_Loader: null,
 	
@@ -31,8 +31,13 @@ var MESHES =
 		this.MorphColorsToFaceColors( inGeometry );
 		var mesh = this.CreateMorph( inGeometry, 0.55, 600, 0, 0, 0, false );
 		this.ms_Morphs.push( mesh );
-		this.ms_MorphsGeometry.push( inGeometry );
+		//this.ms_MorphsGeometry.push( inGeometry );
 		return mesh;
+	},
+	
+	RemoveMorph: function( inMesh )
+	{
+		this.ms_Morphs.splice( this.ms_Morphs.indexOf( inMesh ), 1 );
 	},
 	
 	CreateMorph: function( inGeometry, inSpeed, inDuration, inX, inY, inZ, inFudgeColor ) 

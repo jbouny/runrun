@@ -14,8 +14,8 @@ var CONV =
 	
 	To3DS: function( inCoord )
 	{
-		inCoord.z = this.ms_WorldOffsetZ - inCoord.x * this.ms_WorldRatio;
-		inCoord.y = inCoord.y * this.ms_WorldRatio;
+		inCoord.z = this.ms_WorldOffsetZ - inCoord.x// * this.ms_WorldRatio;
+		//inCoord.y = inCoord.y * this.ms_WorldRatio;
 		inCoord.x = this.ms_WorldOffsetX;
 	},
 	
@@ -43,8 +43,8 @@ var PLAYER =
 	ms_B2DBody: null,
 	ms_Group: null,
 	ms_GroupHeight: null,
-	ms_Speed: 2,
-	ms_Jump: 2,
+	ms_Speed: 15.0,
+	ms_Jump: 17.0,
 	ms_Size: {
 		x: 0.25,
 		y: 0.12
@@ -52,6 +52,8 @@ var PLAYER =
 
 	Initialize: function()
 	{
+		//this.ms_Speed = GAME.ms_Parameters.width
+	
 		// Load the player model (fox)
 		MESHES.Load( MESHES.Type.Fox, function( inGeometry ) {
 			var aMesh = MESHES.AddMorph( inGeometry );
@@ -154,6 +156,8 @@ var PLAYER =
 		this.ms_GroupHeight.position.y = aData.y;
 		if( this.ms_Mesh != null )
 			this.ms_Mesh.rotation.x = aData.angle;
+			
+		TERRAIN.Update( this.ms_Group.position.z );
 	},
 	
 	Jump: function()
@@ -162,7 +166,7 @@ var PLAYER =
 		aVelocity.set_y( this.ms_Jump );
 		this.ms_B2DBody.SetLinearVelocity( aVelocity );
 	}
-}
+};
 
 var GROUND =
 {
@@ -205,71 +209,6 @@ var GROUND =
 		this.ms_Ground.add( aGround );
 		DISPLAY.ms_Scene.add( this.ms_Ground );
 	}
-}
-
-var TREES =
-{
-	ms_Geometry: null,
-	ms_Trees: null,
-	ms_Materiel: null,
-	
-	Initialize: function()
-	{
-		// Create pyramide
-		var aMesh = new THREE.Mesh( new THREE.CylinderGeometry( 0, 4, 10, 4, 1 ), new THREE.MeshNormalMaterial() );
-		aMesh.position.set( 0, 6, 0 );
-		
-		// Merge it width a deformed cube to make the bottom
-		this.ms_Geometry = new THREE.CubeGeometry( 0.5, 2, 0.5, 1, 1, 1 );
-		THREE.GeometryUtils.merge( this.ms_Geometry, aMesh );
-		
-		// Initialize the group of trees and material
-		this.ms_Trees = new THREE.Object3D();
-		this.ms_Material = new THREE.MeshPhongMaterial( { color: 0x006600, ambient: 0x006600, shading: THREE.FlatShading } );
-		
-		// Generate trees
-		this.GenerateTrees( 1000 );
-		
-		// Add the final group to the scene
-		DISPLAY.ms_Scene.add( this.ms_Trees );
-	},
-	
-	GenerateClosedTrees: function()
-	{
-	},
-	
-	GenerateTrees: function( inNbTrees )
-	{
-		var aTreeGeometry = new THREE.Geometry();
-		
-		for( var i = 0; i < inNbTrees; ++i )
-		{			
-			var x = ( 0.2 + RAND_MT.Random() * 0.7 ) * GAME.ms_Parameters.widthSegments - GAME.ms_Parameters.widthSegments / 2;
-			var z = ( 0.01 + RAND_MT.Random() * 0.98 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments / 2;
-			var y = DISPLAY.GetDepth( Math.floor( GAME.ms_Parameters.widthSegments / 2 + x ), Math.floor( GAME.ms_Parameters.heightSegments / 2 + z ) );
-			
-			if( y > 15.0 )
-			{
-				var aTree = new THREE.Mesh(  this.ms_Geometry, this.ms_Material );
-				
-				aTree.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
-				
-				aTree.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
-				aTree.position.y = y;
-				aTree.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
-				
-				var aScale = RAND_MT.Random() * 0.5 + 0.75;
-				aTree.scale.set( aScale, aScale, aScale );
-				
-				THREE.GeometryUtils.merge( aTreeGeometry, aTree );
-			}
-		}
-		
-		var aFinalTrees = new THREE.Mesh( aTreeGeometry, this.ms_Material );
-		this.ms_Trees.add( aFinalTrees );
-		aFinalTrees.castShadow = true;
-		aFinalTrees.receiveShadow = false;
-	},
 };
 
 var GAME =
@@ -279,6 +218,7 @@ var GAME =
 	ms_Parameters: null,
 	ms_HeightMap: null,
 	ms_Clock: null,
+	ms_Iteration: 0,
 	
 	Initialize: function( inIdCanvas )
 	{
@@ -287,39 +227,42 @@ var GAME =
 			alea: RAND_MT,
 			generator: PN_GENERATOR,
 			width: 500,
-			height: 2000,
+			height: 5000,
 			widthSegments: 50,
-			heightSegments: 200,
-			depth: 220,
-			param: 3,
+			heightSegments: 500,
+			depth: 200,
+			param: 6,
 			filterparam: 1,
 			filter: [ GAMETERRAIN_FILTER ],
 			postgen: [ MOUNTAINS2_COLORS ],
 			effect: [ DESTRUCTURE_EFFECT ],
-			canvas: this.ms_HeightMap
+			canvas: this.ms_HeightMap,
+			step: 15
 		};
 		this.ms_Clock = new THREE.Clock();
 		
 		CONV.ms_WorldRatio = GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
-		CONV.ms_WorldOffsetZ = GAME.ms_Parameters.height * 0.5;
+		//CONV.ms_WorldOffsetZ = GAME.ms_Parameters.height * 0.5;
 		CONV.ms_WorldOffsetY = GAME.ms_Parameters.depth * 0.10;
 		CONV.ms_WorldOffsetX = GAME.ms_Parameters.width * 0.42;
 	
 		MESHES.Initialize();
-		DISPLAY.Initialize( inIdCanvas );
 		this.B2DInitialize( this.ms_Parameters );
+		DISPLAY.Initialize( inIdCanvas );
 		PLAYER.Initialize();
-		GROUND.Initialize( this.ms_Parameters );
-		TREES.Initialize();
+		
+		TERRAIN.Initialize( DISPLAY.ms_Scene, this.ms_Parameters );
+		
+		//GROUND.Initialize( this.ms_Parameters );
 	},
 	
 	B2DInitialize: function( inParameters )
 	{	
-		var aGravity = new Box2D.b2Vec2( 0.0, -3.0 );
+		var aGravity = new Box2D.b2Vec2( 0.0, -32.0 );
 		this.ms_B2DWorld = new Box2D.b2World( aGravity, true );
 		
         var aEdgeShape = new Box2D.b2EdgeShape();
-        aEdgeShape.Set( new Box2D.b2Vec2( 0, 0 ), new Box2D.b2Vec2( inParameters.heightSegments, 0 ) );
+        aEdgeShape.Set( new Box2D.b2Vec2( 0, 0 ), new Box2D.b2Vec2( 10000, 0 ) );
         this.ms_B2DWorld.CreateBody( new Box2D.b2BodyDef() ).CreateFixture( aEdgeShape, 0.0 );
 	},
 	
@@ -342,10 +285,18 @@ var GAME =
 		);
 		PLAYER.Update( aDelta );
 		
-		var aSize = DISPLAY.ms_Animals.children.length * 0.8;
-		for( var i = 0; i < aSize; ++i )
-			DISPLAY.ms_Animals.children[i].lookAt( PLAYER.ms_Group.position );
-			
+		for( var i = this.ms_Iteration % 2; i < TERRAIN.ms_Blocks.length; i += 2 )
+		{
+			var aSize = TERRAIN.ms_Blocks[i].cows.children.length * 1.0;
+			var position = Object.create( PLAYER.ms_Group.position );
+			TERRAIN.ms_Blocks[i].cows.worldToLocal( position );
+			for( var j = 0; j < aSize; ++j )
+			{
+				TERRAIN.ms_Blocks[i].cows.children[j].lookAt( position );
+			}
+		}
+		//	DISPLAY.ms_Animals.children[i].lookAt( PLAYER.ms_Group.position );
+		++ this.ms_Iteration;
 		DISPLAY.Update( aDelta );
 	},
 	

@@ -8,7 +8,6 @@ var DISPLAY =
 	ms_Terrain: null,
 	ms_Light: null,
 	ms_CloseLight: null,
-	ms_Animals: null,
 	ms_Water: null,	
 	
 	ms_Player: null,
@@ -101,6 +100,8 @@ var DISPLAY =
 			sunColor: 0xffffff,
 			waterColor: 0x001e0f,
 			distortionScale: 15.0,
+			noiseScale: 0.1,
+			clipBias: -0.02,
 		} );
 		var aMeshMirror = new THREE.Mesh(
 			new THREE.PlaneGeometry( GAME.ms_Parameters.width * 0.85, GAME.ms_Parameters.height, 10, 10 ), 
@@ -113,60 +114,11 @@ var DISPLAY =
 		
 		//this.ms_CloseLight.shadowCameraVisible = true;
 		//this.ms_Light.shadowCameraVisible = true;
-		
-		this.LoadTerrain();
-		this.GenerateAnimals();		
-	},
-	
-	LoadTerrain: function()
-	{
-		var terrainGeo = TERRAINGEN.Get( GAME.ms_Parameters );
-		var terrainMaterial = new THREE.MeshPhongMaterial( { vertexColors: THREE.VertexColors, shading: THREE.FlatShading, specular: 0xffffff, side: THREE.DoubleSide } );
-		
-		this.ms_Terrain = new THREE.Mesh( terrainGeo, terrainMaterial );
-		
-		this.ms_Scene.add( this.ms_Terrain );
-		this.ms_Terrain.receiveShadow = true;
-		this.ms_Terrain.castShadow = false;
 	},
 	
 	GetDepth: function( inX, inY )
 	{
 		return this.ms_Terrain.geometry.vertices[ inY * GAME.ms_Parameters.widthSegments + inX ].y;
-	},
-	
-	LoadAnimals: function( inType )
-	{
-		MESHES.Load( inType, function( inGeometry ) {
-			for( var i = 0; i < 400; ++i )
-			{
-				var x = ( 0.1 + RAND_MT.Random() * 0.9 ) * GAME.ms_Parameters.widthSegments/2 - GAME.ms_Parameters.widthSegments/8;
-				var z = ( 0.005 + RAND_MT.Random() * 0.99 ) * GAME.ms_Parameters.heightSegments - GAME.ms_Parameters.heightSegments/2;
-				var y = DISPLAY.GetDepth( Math.round( GAME.ms_Parameters.widthSegments / 2 + x ), Math.round( GAME.ms_Parameters.heightSegments / 2 + z ) );
-				
-				if( y > 15.0 )
-				{
-					var mesh = MESHES.AddMorph( inGeometry );
-					mesh.position.x = x * GAME.ms_Parameters.width / GAME.ms_Parameters.widthSegments;
-					mesh.position.z = z * GAME.ms_Parameters.height / GAME.ms_Parameters.heightSegments;
-					mesh.rotation.set( 0, RAND_MT.Random() * Math.PI * 2, 0 );
-					
-					mesh.position.y = y;
-					mesh.scale.set( 0.03, 0.03, 0.03 );
-					mesh.castShadow = true;
-					mesh.receiveShadow = false;
-					
-					DISPLAY.ms_Animals.add( mesh );
-				}
-			}
-		} );
-	},
-	
-	GenerateAnimals: function()
-	{
-		this.ms_Animals = new THREE.Object3D();
-		this.ms_Scene.add( this.ms_Animals );
-		this.LoadAnimals( MESHES.Type.Cow );
 	},
 	
 	Display: function()
